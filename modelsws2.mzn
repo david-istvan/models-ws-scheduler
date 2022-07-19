@@ -1,8 +1,13 @@
 enum WORKSHOP;
 WORKSHOP = {DevOps, HuFaMo, LowCode, MASE, MDEIntelligence, ME, MLE, MoDDiT, MoDeVVa, MPM4CPS, MULTI, OCL};
 
-set of int: DAY = 1..3;
+enum DAY;
+DAY = {Sunday, Monday, Tuesday};
 
+% Preferences collected in the Google Form
+% 10: Good match
+% 5: Fair match
+% 0: Poor match
 array[WORKSHOP, DAY] of int: preferences;
 preferences =
 [| 0, 10, 5,
@@ -18,34 +23,52 @@ preferences =
  | 10, 5, 5,
  | 0, 5, 10 |];
 
+% Allocation constraints
 array[WORKSHOP] of var DAY: allocation;
+constraint allocation[MASE] != allocation[DevOps];              % OC overlap
+constraint allocation[DevOps] != allocation[MoDDiT];            % OC overlap
+constraint allocation[LowCode] != allocation[MULTI];            % OC overlap
+constraint allocation[MPM4CPS] != allocation[MLE];              % Audience overlap
+constraint allocation[MPM4CPS] != allocation[MoDeVVa];          % Audience overlap
+constraint allocation[LowCode] != allocation[MDEIntelligence];  % Two of the three biggest workshops in the last years
+constraint allocation[LowCode] != allocation[MoDDiT];           % Two of the three biggest workshops in the last years
+constraint allocation[MDEIntelligence] != allocation[MoDDiT];   % Two of the three biggest workshops in the last years
 
-var int: satisfaction = sum(w in WORKSHOP)(preferences[w, allocation[w]]);
-
-constraint allocation[MASE] != allocation[DevOps];
-constraint allocation[DevOps] != allocation[MoDDiT];
-constraint allocation[MPM4CPS] != allocation[MLE];
-constraint allocation[MPM4CPS] != allocation[MoDeVVa];
-constraint allocation[LowCode] != allocation[MULTI];
-constraint allocation[LowCode] != allocation[MDEIntelligence];
-constraint allocation[LowCode] != allocation[MoDDiT];
-constraint allocation[MDEIntelligence] != allocation[MoDDiT];
-
+% Room constraints
 var int: sundayWorkshops = count(allocation, 1);
 var int: mondayWorkshops = count(allocation, 2);
 var int: tuesdayWorkshops = count(allocation, 3);
-
 constraint sundayWorkshops <= 4;
 constraint mondayWorkshops <= 5;
 constraint tuesdayWorkshops <= 3;
 
-solve maximize satisfaction;
+% Schedule quality
+var int: goodSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==10);
+var int: fairSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==5);
+var int: poorSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==0);
+var int: satisfaction = sum(w in WORKSHOP)(preferences[w, allocation[w]]);
+var float: weightedSatisfaction = satisfaction*((12-poorSchedule)/12);
 
-var float: satRatio = satisfaction/120*100;
+% Choose goal
+var float: GOAL = weightedSatisfaction;
 
+% Solve
+solve maximize GOAL;
+
+% Some metrics
+var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*10)*100;
+
+
+% Output
 output[
-  "Satisfaction: \(satisfaction) (out of 120 -- \(satRatio)%).\n",
-  "Allocation: \(allocation).\n",
+  "Satisfaction: \(satisfaction) (out of \(length(WORKSHOP)*10) --", show_float(0, 1, satisfactionRatio), "%).\n",
+  "~~~\n",
+  "Allocation: \(allocation)\n",
+  "~~~\n",
+  "Good schedule: \(goodSchedule).\n",
+  "Fair schedule: \(fairSchedule).\n",
+  "Poor schedule: \(poorSchedule).\n",
+  "~~~\n",
   "Sunday workshops: \(sundayWorkshops).\n",
   "Monday workshops: \(mondayWorkshops).\n",
   "Tuesday workshops: \(tuesdayWorkshops).\n"
