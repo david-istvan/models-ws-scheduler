@@ -31,11 +31,22 @@ constraint allocation[LowCode] != allocation[MDEIntelligence];
 constraint allocation[LowCode] != allocation[MoDDiT];
 constraint allocation[MDEIntelligence] != allocation[MoDDiT];
 
+var int: sundayWorkshops = count(allocation, 1);
+var int: mondayWorkshops = count(allocation, 2);
+var int: tuesdayWorkshops = count(allocation, 3);
+
+constraint sundayWorkshops <= 4;
+constraint mondayWorkshops <= 5;
+constraint tuesdayWorkshops <= 3;
+
 solve maximize satisfaction;
 
 var float: satRatio = satisfaction/120*100;
 
 output[
   "Satisfaction: \(satisfaction) (out of 120 -- \(satRatio)%).\n",
-  "Allocation: \(allocation).\n"
+  "Allocation: \(allocation).\n",
+  "Sunday workshops: \(sundayWorkshops).\n",
+  "Monday workshops: \(mondayWorkshops).\n",
+  "Tuesday workshops: \(tuesdayWorkshops).\n"
 ]
