@@ -35,9 +35,9 @@ constraint allocation[LowCode] != allocation[MoDDiT];           % Two of the thr
 constraint allocation[MDEIntelligence] != allocation[MoDDiT];   % Two of the three biggest workshops in the last years
 
 % Room constraints
-var int: sundayWorkshops = count(allocation, 1);
-var int: mondayWorkshops = count(allocation, 2);
-var int: tuesdayWorkshops = count(allocation, 3);
+var int: sundayWorkshops = count(allocation, Sunday);
+var int: mondayWorkshops = count(allocation, Monday);
+var int: tuesdayWorkshops = count(allocation, Tuesday);
 constraint sundayWorkshops <= 4;
 constraint mondayWorkshops <= 5;
 constraint tuesdayWorkshops <= 3;
@@ -47,7 +47,7 @@ var int: goodSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==10);
 var int: fairSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==5);
 var int: poorSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==0);
 var int: satisfaction = sum(w in WORKSHOP)(preferences[w, allocation[w]]);
-var float: weightedSatisfaction = satisfaction*((12-poorSchedule)/12);
+var float: weightedSatisfaction = satisfaction*((length(WORKSHOP)-poorSchedule)/length(WORKSHOP));
 
 % Choose goal
 var float: GOAL = weightedSatisfaction;
