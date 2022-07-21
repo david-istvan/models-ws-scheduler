@@ -4,24 +4,24 @@ WORKSHOP = {DevOps, HuFaMo, LowCode, MASE, MDEIntelligence, ME, MLE, MoDDiT, MoD
 enum DAY;
 DAY = {Sunday, Monday, Tuesday};
 
+enum PREFERENCE;
+PREFERENCE = {poor, fair, good};
+
 % Preferences collected in the Google Form
-% 10: Good match
-% 5: Fair match
-% 0: Poor match
-array[WORKSHOP, DAY] of int: preferences;
+array[WORKSHOP, DAY] of PREFERENCE: preferences;
 preferences =
-[| 0, 10, 5,
- | 0, 10, 5,
- | 0, 0, 10,
- | 0, 5, 10,
- | 0, 10, 10,
- | 0, 5, 10,
- | 5, 5, 5,
- | 0, 5, 10,
- | 0, 10, 10,
- | 10, 10, 10,
- | 10, 5, 5,
- | 0, 5, 10 |];
+[| poor, good, fair,
+ | poor, good, fair,
+ | poor, poor, good,
+ | poor, fair, good,
+ | poor, good, good,
+ | poor, fair, good,
+ | fair, fair, fair,
+ | poor, fair, good,
+ | poor, good, good,
+ | good, good, good,
+ | good, fair, fair,
+ | poor, fair, good |];
 
 % Allocation constraints
 array[WORKSHOP] of var DAY: allocation;
@@ -43,10 +43,13 @@ constraint mondayWorkshops <= 5;
 constraint tuesdayWorkshops <= 3;
 
 % Schedule quality
-var int: goodSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==10);
-var int: fairSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==5);
-var int: poorSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==0);
-var int: satisfaction = sum(w in WORKSHOP)(preferences[w, allocation[w]]);
+var int: goodSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==good);
+var int: fairSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==fair);
+var int: poorSchedule = sum(w in WORKSHOP)(preferences[w, allocation[w]]==poor);
+
+% Metrics
+array[PREFERENCE] of var int: weights = [0, 5, 10];
+var int: satisfaction = sum(w in WORKSHOP)(weights[preferences[w, allocation[w]]]);
 var float: weightedSatisfaction = satisfaction*((length(WORKSHOP)-poorSchedule)/length(WORKSHOP));
 
 % Choose goal
@@ -56,12 +59,12 @@ var float: GOAL = weightedSatisfaction;
 solve maximize GOAL;
 
 % Some metrics
-var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*10)*100;
+var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*weights[good])*100;
 
 
 % Output
 output[
-  "Satisfaction: \(satisfaction) (out of \(length(WORKSHOP)*10) --", show_float(0, 1, satisfactionRatio), "%).\n",
+  "Satisfaction: \(satisfaction) (out of \(length(WORKSHOP)*weights[good]) --", show_float(0, 1, satisfactionRatio), "%).\n",
   "~~~\n",
   "Allocation: \(allocation)\n",
   "~~~\n",
