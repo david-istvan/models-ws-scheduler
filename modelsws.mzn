@@ -23,6 +23,13 @@ preferences =
  | good, fair, fair,
  | poor, fair, good |];
 
+% Workshop format: full-day or half-day
+set of float: LENGTH = {1, 0.5};
+array[WORKSHOP] of var LENGTH: format;
+array[WORKSHOP] of bool: fixedFullday = [true, true, true, true, true, true, true, true, true, true, true, true];
+constraint forall(w in WORKSHOP)(if fixedFullday[w] then format[w]==1 endif);
+
+
 % Allocation constraints
 array[WORKSHOP] of var DAY: allocation;
 constraint allocation[MASE] != allocation[DevOps];              % OC overlap
@@ -35,9 +42,9 @@ constraint allocation[LowCode] != allocation[MoDDiT];           % Two of the thr
 constraint allocation[MDEIntelligence] != allocation[MoDDiT];   % Two of the three biggest workshops in the last years
 
 % Room constraints
-var int: sundayWorkshops = count(allocation, Sunday);
-var int: mondayWorkshops = count(allocation, Monday);
-var int: tuesdayWorkshops = count(allocation, Tuesday);
+var float: sundayWorkshops = sum(w in WORKSHOP)(format[w]*(allocation[w]==Sunday));
+var float: mondayWorkshops = sum(w in WORKSHOP)(format[w]*(allocation[w]==Monday));
+var float: tuesdayWorkshops = sum(w in WORKSHOP)(format[w]*(allocation[w]==Tuesday));
 constraint sundayWorkshops <= 4;
 constraint mondayWorkshops <= 5;
 constraint tuesdayWorkshops <= 3;
@@ -64,9 +71,12 @@ var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*weights[good])*100
 
 % Output
 output[
-  "Satisfaction: \(satisfaction) (out of \(length(WORKSHOP)*weights[good]) --", show_float(0, 1, satisfactionRatio), "%).\n",
+  "Satisfaction: \(satisfaction).",
+  " -- ", show_float(0, 1, satisfactionRatio), "% of theoretical max (\(length(WORKSHOP)*weights[good])), ",
+  show_float(0, 1, 100*satisfaction/105), "% of feasible max (105).\n",
   "~~~\n",
   "Allocation: \(allocation)\n",
+  "Format: \(format)\n",
   "~~~\n",
   "Good schedule: \(goodSchedule).\n",
   "Fair schedule: \(fairSchedule).\n",
