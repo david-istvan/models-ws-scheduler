@@ -29,17 +29,22 @@ array[WORKSHOP] of var LENGTH: format;
 array[WORKSHOP] of bool: fixedFullday = [true, true, true, true, true, true, true, true, true, true, true, true];
 constraint forall(w in WORKSHOP)(if fixedFullday[w] then format[w]==1 endif);
 
+predicate sameDay(var WORKSHOP: w1, var WORKSHOP: w2) =
+  allocation[w1] == allocation[w2];
+
+predicate notInParallel(var WORKSHOP: w1, var WORKSHOP: w2) =
+  if sameDay(w1, w2) then format[w1]+format[w2] <= 1 endif;
 
 % Allocation constraints
 array[WORKSHOP] of var DAY: allocation;
-constraint allocation[MASE] != allocation[DevOps];              % OC overlap
-constraint allocation[DevOps] != allocation[MoDDiT];            % OC overlap
-constraint allocation[LowCode] != allocation[MULTI];            % OC overlap
-constraint allocation[MPM4CPS] != allocation[MLE];              % Audience overlap
-constraint allocation[MPM4CPS] != allocation[MoDeVVa];          % Audience overlap
-constraint allocation[LowCode] != allocation[MDEIntelligence];  % Two of the three biggest workshops in the last years
-constraint allocation[LowCode] != allocation[MoDDiT];           % Two of the three biggest workshops in the last years
-constraint allocation[MDEIntelligence] != allocation[MoDDiT];   % Two of the three biggest workshops in the last years
+constraint notInParallel(MASE, DevOps);              % OC overlap
+constraint notInParallel(DevOps, MoDDiT);            % OC overlap
+constraint notInParallel(LowCode, MULTI);            % OC overlap
+constraint notInParallel(MPM4CPS, MLE);              % Audience overlap
+constraint notInParallel(MPM4CPS, MoDeVVa);          % Audience overlap
+constraint notInParallel(LowCode, MDEIntelligence);  % Two of the three biggest workshops in the last years
+constraint notInParallel(LowCode, MoDDiT);           % Two of the three biggest workshops in the last years
+constraint notInParallel(MDEIntelligence, MoDDiT);   % Two of the three biggest workshops in the last years
 
 % Room constraints
 var float: sundayWorkshops = sum(w in WORKSHOP)(format[w]*(allocation[w]==Sunday));
@@ -72,8 +77,7 @@ var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*weights[good])*100
 % Output
 output[
   "Satisfaction: \(satisfaction).",
-  " -- ", show_float(0, 1, satisfactionRatio), "% of theoretical max (\(length(WORKSHOP)*weights[good])), ",
-  show_float(0, 1, 100*satisfaction/105), "% of feasible max (105).\n",
+  " -- ", show_float(0, 1, satisfactionRatio), "% of theoretical max (\(length(WORKSHOP)*weights[good])).\n",
   "~~~\n",
   "Allocation: \(allocation)\n",
   "Format: \(format)\n",
