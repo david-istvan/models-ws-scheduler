@@ -26,7 +26,7 @@ preferences =
 % Workshop format: full-day or half-day
 set of float: LENGTH = {1, 0.5};
 array[WORKSHOP] of var LENGTH: format;
-array[WORKSHOP] of bool: fixedFullday = [true, true, true, true, true, true, true, true, true, true, true, true];
+array[WORKSHOP] of bool: fixedFullday = [true, false, true, true, true, false, true, true, true, true, true, true];
 constraint forall(w in WORKSHOP)(if fixedFullday[w] then format[w]==1 endif);
 
 predicate sameDay(var WORKSHOP: w1, var WORKSHOP: w2) =
