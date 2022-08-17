@@ -43,7 +43,7 @@ constraint notInParallel(LowCode, MULTI);            % OC overlap
 constraint notInParallel(MPM4CPS, MLE);              % Audience overlap
 constraint notInParallel(MPM4CPS, MoDeVVa);          % Audience overlap
 constraint notInParallel(LowCode, MDEIntelligence);  % Two of the three biggest workshops in the last years
-constraint notInParallel(LowCode, MoDDiT);           % Two of the three biggest workshops in the last years
+%constraint notInParallel(LowCode, MoDDiT);           % Two of the three biggest workshops in the last years
 constraint notInParallel(MDEIntelligence, MoDDiT);   % Two of the three biggest workshops in the last years
 
 % Room constraints
@@ -67,12 +67,14 @@ var float: weightedSatisfaction = satisfaction*((length(WORKSHOP)-poorSchedule)/
 % Choose goal
 var float: GOAL = weightedSatisfaction;
 
-% Solve
+% Solve -- Use this to find maximized goal value
 solve maximize GOAL;
+% Solve -- Use these two lines to generate all values for the previously found max
+%constraint satisfactionRatio >= 83.3;
+%solve satisfy;
 
 % Some metrics
 var float: satisfactionRatio = satisfaction/(length(WORKSHOP)*weights[good])*100;
-
 
 % Output
 output[
