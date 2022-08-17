@@ -1,0 +1,20 @@
+sundayWorkshopsMax = 4;
+mondayWorkshopsMax = 5;
+tuesdayWorkshopsMax = 3;
+
+preferences =
+[| poor, good, fair,
+ | poor, good, fair,
+ | poor, poor, good,
+ | poor, fair, good,
+ | poor, good, good,
+ | poor, fair, good,
+ | fair, fair, fair,
+ | poor, fair, good,
+ | poor, good, good,
+ | good, good, good,
+ | good, fair, fair,
+ | poor, fair, good |];
+ 
+ 
+fixedFullday = [true, false, true, true, true, false, true, true, true, true, true, true];
