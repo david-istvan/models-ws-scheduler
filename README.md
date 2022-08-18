@@ -1,6 +1,6 @@
 # MODELS Workshops Scheduler
 
-Quick&dirty (Dijkstra-would-not-have-liked-it) solver for the workshop allocation problem with (i) OC scheduling preferences, (ii) OC/audience overlaps, and (iii) room capacity considered.
+Quick&dirty (Dijkstra-would-not-have-liked-it) solver for workshop allocation with (i) OC scheduling preferences, (ii) OC/audience overlaps, (iii) room capacity, and (iv) full-day/half-day preferences considered.
 
 - Step 1: Maximize satisfaction.
 - Step 2: Generate all allocations that meet the maximal satisfaction goal.
